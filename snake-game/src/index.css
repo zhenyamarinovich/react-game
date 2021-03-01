@@ -1,0 +1,52 @@
+.snake-game {
+  width: 100vw;
+  height: 100vh;
+}
+
+.header-block, .footer-block{
+  height: 10%;
+  color: white;
+}
+
+.game-block{
+  height: 80%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.game-area {
+  position: relative;
+  margin: 0 auto;
+  width: 500px;
+  height: 500px;
+  border: 2px solid black;
+}
+
+.snake-dot {
+  position: absolute;
+  width: 4%;
+  height: 4%;
+  background: rgba(3, 243, 103, 0.534);
+}
+.snake-head {
+  background-color: rgba(0,0,0,0);
+}
+
+.snake-body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.snake-food {
+  position: absolute;
+  width: 4%;
+  height: 4%;
+  z-index: 1;
+}
+
+.footer_git-image {
+  width: 40px;
+  height: 40px;
+}
