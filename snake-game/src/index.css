@@ -32,6 +32,25 @@
 }
 .snake-head {
   background-color: rgba(0,0,0,0);
+  animation: head 5s linear infinite;
+}
+
+@keyframes head {
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(45deg);
+  }
+  50% {
+    transform: rotate(0deg);
+  }
+  75%{
+    transform: rotate(-45deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
 }
 
 .snake-body {
@@ -45,6 +64,19 @@
   width: 4%;
   height: 4%;
   z-index: 1;
+  animation: food 1s linear infinite;
+}
+
+@keyframes food {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 .footer_git-image {
@@ -54,4 +86,8 @@
 
 .game-area:fullscreen {
   background-color: white;
+}
+
+button:hover {
+  animation: food 1s linear infinite;
 }
