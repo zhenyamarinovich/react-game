@@ -11,15 +11,16 @@
 .game-block{
   height: 80%;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: space-around;
   align-items: center;
 }
 
 .game-area {
   position: relative;
   margin: 0 auto;
-  width: 500px;
-  height: 500px;
+  width: 600px;
+  height: 600px;
   border: 2px solid black;
 }
 
@@ -49,4 +50,8 @@
 .footer_git-image {
   width: 40px;
   height: 40px;
+}
+
+.game-area:fullscreen {
+  background-color: white;
 }

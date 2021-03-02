@@ -2,7 +2,7 @@ import React from 'react';
 import {Navbar} from 'react-bootstrap';
 import logo from '../assets/img/head.jpg';
 
-export default (props) => {
+export default function Header (props) {
     return (
        <>
          <Navbar bg="dark" variant="dark" className="header-block">

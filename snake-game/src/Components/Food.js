@@ -1,7 +1,7 @@
 import React from 'react';
 import apple from '../assets/img/apple.png';
 
-export default (props) => {
+export default function Food (props) {
 
     const style = {
         left: `${props.dot[0]}%`,
@@ -10,6 +10,6 @@ export default (props) => {
 
     return (
         //<div className = "snake-food" style = {style}></div>
-        <img src = {apple} style = {style} className = "snake-food"/>
+        <img src = {apple} style = {style} className = "snake-food" alt="apple"/>
     )
 }

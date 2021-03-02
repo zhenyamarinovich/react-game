@@ -3,6 +3,9 @@ import Snake from './Components/Snake';
 import Food from './Components/Food';
 import Header from './Components/Header';
 import Footer from './Components/Footer';
+import FullScreen from './Components/FullScreen';
+import StartGame from './Components/StartGame';
+import FinishModal from './Components/FinishModal';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const getRandomCoordinates = () => {
@@ -21,7 +24,8 @@ const initialState = {
     [0,0],
     [4,0],
     [8,0],
-  ]
+  ],
+  modalShow: false,
 }
 
 class App extends Component {
@@ -29,8 +33,11 @@ class App extends Component {
   state = initialState;
 
   componentDidMount() {
-    this.interval = setInterval(this.moveSnake, this.state.speed);
-    document.onkeydown = this.onKeyDown;
+    //this.interval = setInterval(this.moveSnake, this.state.speed);
+    document.onkeydown = this.onKeyDown;  
+    this.setState({
+      prevLengthTail: 0
+    })
   }
 
   componentDidUpdate() {
@@ -54,6 +61,8 @@ class App extends Component {
       case 39:
         this.setState({direction: 'RIGHT'});
         break;
+      default:
+        break;
     }
   }
 
@@ -73,6 +82,8 @@ class App extends Component {
         break;
       case 'UP': 
         head = [head[0], head[1] - 4];
+        break;
+      default:
         break;
     }
 
@@ -95,7 +106,7 @@ class App extends Component {
     let head = snake[snake.length - 1];
     snake.pop();
     snake.forEach(dot => {
-      if(head[0] == dot[0] && head[1] == dot[1]) {
+      if(head[0] === dot[0] && head[1] === dot[1]) {
         this.onGameOver();
       }
     })
@@ -104,7 +115,7 @@ class App extends Component {
   checkIfEat() {
     let head = this.state.snakeDots[this.state.snakeDots.length - 1];
     let food = this.state.food;
-    if(head[0] == food[0] && head[1] == food[1]) {
+    if(head[0] === food[0] && head[1] === food[1]) {
       this.setState({
         food: getRandomCoordinates()
       })
@@ -125,31 +136,66 @@ class App extends Component {
     if(this.state.speed > 40) {
       clearInterval(this.interval);
         this.setState( {
-          speed: this.state.speed - 5
+          speed: this.state.speed - 3
       })
       this.interval = setInterval(this.moveSnake, this.state.speed);
     }
   }
 
   onGameOver() {
-    //alert(`Game Over, Snake length is ${this.state.snakeDots.length}`);
     this.setState(initialState);
+    clearInterval(this.interval);
+    if(!this.state.modalShow) {
+      this.setState({
+        prevLengthTail: this.state.snakeDots.length,
+        modalShow: true,
+      });
+    }
+  }
+
+  startNewGame() {
+    clearInterval(this.interval);
+    this.setState(initialState);
+    this.interval = setInterval(this.moveSnake, this.state.speed);
+  }
+
+  fullScreenGame() {
+    if(!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  }
+
+  closeModal() {
+    if(this.state.modalShow) {
+      this.setState({
+        modalShow: false,
+      });
+    }
   }
 
   render() {
     return (
       <div className="snake-game">
         <Header />
+        <FinishModal
+            tail = {this.state.prevLengthTail}
+            show = {this.state.modalShow}
+            onHide= {this.closeModal.bind(this)}
+        />
         <div className="game-block">
+          <div>
+            <StartGame onClickNewGame = {this.startNewGame.bind(this)}/>
+            <FullScreen onFullScreen = {this.fullScreenGame}/>
+          </div>
           <div className="game-area">
               <Snake snakeDots = {this.state.snakeDots} />
               <Food dot = {this.state.food} />
           </div>
         </div>
-       
         <Footer />
-      </div>
-      
+      </div> 
     );
   }
 }
