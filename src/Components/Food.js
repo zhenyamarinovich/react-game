@@ -1,5 +1,7 @@
 import React from 'react';
 import apple from '../assets/img/apple.png';
+import banana from '../assets/img/banana.png';
+import strawberry from '../assets/img/strawberry.png';
 
 export default function Food (props) {
 
@@ -8,8 +10,17 @@ export default function Food (props) {
         top: `${props.dot[1]}%`,
     }
 
-    return (
-        //<div className = "snake-food" style = {style}></div>
-        <img src = {apple} style = {style} className = "snake-food" alt="apple"/>
-    )
+    if(props.nameFood === "apple"){
+        return (
+            <img src = {apple} style = {style} className = "snake-food" alt="apple"/>
+        )
+    } else if(props.nameFood === "banana") {
+        return (
+            <img src = {banana} style = {style} className = "snake-food" alt="banana"/>
+        )
+    } else {
+        return (
+            <img src = {strawberry} style = {style} className = "snake-food" alt="strawberry"/>
+        )
+    }
 }

@@ -25,12 +25,12 @@ const getRandomCoordinates = () => {
 const initialState = {
   food: getRandomCoordinates(),
   direction: 'RIGHT',
+  modalShow: false,
   snakeDots: [
     [0,0],
     [4,0],
     [8,0],
   ],
-  modalShow: false,
 }
 
 const soundClick = new Howl({
@@ -55,6 +55,8 @@ class App extends Component {
       prevLengthTail: 0,
       speedName: 'Low speed',
       speed: 200,
+      beginLength: 3,
+      nameFood: 'apple',
     })
     soundClick.volume(0.5);
     soundEat.volume(0.5);
@@ -176,6 +178,7 @@ class App extends Component {
       });
     }
     this.setNeedSpeed();
+    this.setNeedLength();
   }
 
   setNeedSpeed() {
@@ -194,10 +197,39 @@ class App extends Component {
     }
   }
 
+  setNeedLength() {
+    if(this.state.beginLength === 2) {
+      this.setState({
+        snakeDots: [
+          [0,0],
+          [4,0],
+        ],
+      })
+    } else if(this.state.beginLength === 3) {
+      this.setState({
+        snakeDots: [
+          [0,0],
+          [4,0],
+          [8,0]
+        ],
+      })
+    } else if(this.state.beginLength === 4){
+      this.setState({
+        snakeDots: [
+          [0,0],
+          [4,0],
+          [8,0],
+          [12,0],
+        ],
+      })
+    }
+  }
+
   startNewGame() {
     soundClick.play();
     clearInterval(this.interval);
     this.setState(initialState);
+    this.setNeedLength();
     this.interval = setInterval(this.moveSnake, this.state.speed);
   }
 
@@ -269,6 +301,53 @@ class App extends Component {
     }
   }
 
+  changeLength(e) {
+    if(e.target.innerText === '2') {
+      this.setState({
+        snakeDots: [
+          [0,0],
+          [4,0],
+        ],
+        beginLength: 2
+      })
+    } else if(e.target.innerText === '3') {
+      this.setState({
+        snakeDots: [
+          [0,0],
+          [4,0],
+          [8,0],
+        ],
+        beginLength: 3
+      })
+    } else if(e.target.innerText === '4'){
+      this.setState({
+        snakeDots: [
+          [0,0],
+          [4,0],
+          [8,0],
+          [12,0],
+        ],
+        beginLength: 4
+      })
+    }
+  }
+
+  changeFood(e) {
+    if(e.target.innerText === 'apple') {
+      this.setState({
+        nameFood: 'apple',
+      })
+    } else if(e.target.innerText === 'banana') {
+      this.setState({
+        nameFood: 'banana',
+      })
+    } else if(e.target.innerText === 'strawberry') {
+      this.setState({
+        nameFood: 'strawberry',
+      })
+    } 
+  }
+
 
 
   render() {
@@ -284,6 +363,19 @@ class App extends Component {
           <div className = "panel-control">
             <StartGame onClickNewGame = {this.startNewGame.bind(this)}/>
             <FullScreen onFullScreen = {this.fullScreenGame}/>
+            <Settings 
+            onChangeSpeed = {(e) => {
+              this.changeSpeed(e);
+            }}
+            onChangeLength = {(e) => {
+              this.changeLength(e);
+            }}
+            onChangeFood = {(e) => {
+              this.changeFood(e);
+            }}
+            currentSpeed = {this.state.speedName}
+            currentFood = {`Meal: ${this.state.nameFood}`}
+            currentLength = {`Length: ${this.state.beginLength}`}  />
             <SoundController 
               onChangeSoundVolume = {(e) => {
               this.changeSoundVolume(e);
@@ -297,14 +389,11 @@ class App extends Component {
               onMuteMusic = {(e) => {
                 this.muteMusic(e);
             }}
-              />
-            <Settings onChangeSpeed = {(e) => {
-              this.changeSpeed(e);
-            }} currentSpeed = {this.state.speedName}/>
+            />
           </div>
           <div className="game-area">
               <Snake snakeDots = {this.state.snakeDots} />
-              <Food dot = {this.state.food} />
+              <Food dot = {this.state.food} nameFood = {this.state.nameFood}/>
           </div>
         </div>
         <Footer />
