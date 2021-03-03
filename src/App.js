@@ -12,7 +12,9 @@ import backMusic from './assets/audio/back-music.mp3';
 import {Howl} from 'howler';
 import SoundController from './Components/SoundController';
 import Settings from './Components/Settings';
+import StateGame from './Components/StateGame';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import LastTenScore from './Components/LastTenScore';
 
 const getRandomCoordinates = () => {
   let min = 0;
@@ -31,6 +33,7 @@ const initialState = {
     [4,0],
     [8,0],
   ],
+  lastTen: [],
 }
 
 const soundClick = new Howl({
@@ -44,20 +47,19 @@ const soundBackground = new Howl({
   src: backMusic
 })
 
+let saveData;
+
 class App extends Component {
 
-  state = initialState;
+  constructor(props) {
+    super(props);
+    this.state = initialState;
+    this.initState()
+  }
 
   componentDidMount() {
     //this.interval = setInterval(this.moveSnake, this.state.speed);
-    document.onkeydown = this.onKeyDown;  
-    this.setState({
-      prevLengthTail: 0,
-      speedName: 'Low speed',
-      speed: 200,
-      beginLength: 3,
-      nameFood: 'apple',
-    })
+    document.onkeydown = this.onKeyDown;
     soundClick.volume(0.5);
     soundEat.volume(0.5);
     soundBackground.volume(0.5);
@@ -65,10 +67,53 @@ class App extends Component {
     soundBackground.play();
   }
 
+  initState() {
+    window.addEventListener('load', this.saveNewData());
+    if(saveData) {
+      this.state = saveData;
+      if(this.state.snakeDots[0][0] !== 0 || this.state.snakeDots[0][1] !== 0){
+        this.interval = setInterval(this.moveSnake, this.state.speed);
+      } 
+    } else {
+      if(!localStorage.getItem('lastTen')){
+        localStorage.setItem('lastTen', JSON.stringify([]));  
+      }
+      let newScore = JSON.parse(localStorage.getItem('lastTen'));
+      this.state = {
+        prevLengthTail: 0,
+        speedName: 'Low speed',
+        speed: 200,
+        beginLength: 3,
+        nameFood: 'apple',
+        lastTen: newScore,
+        scoreShow: false,
+        food: getRandomCoordinates(),
+        direction: 'RIGHT',
+        modalShow: false,
+        snakeDots: [
+          [0,0],
+          [4,0],
+          [8,0],
+        ],
+        lastTen: []
+      };
+    }
+    this.saveState.bind(this)();
+  }
+
+  saveNewData() {
+    saveData = JSON.parse(localStorage.getItem('lastState'));
+  }
+
+  saveState(){
+      localStorage.setItem('lastState',JSON.stringify(this.state));
+  };
+
   componentDidUpdate() {
     this.checkIfOutBorders();
     this.checkIfCollapsed();
     this.checkIfEat();
+    this.saveState.bind(this)();
   }
 
   onKeyDown = (e) => {
@@ -89,6 +134,7 @@ class App extends Component {
       default:
         break;
     }
+    this.saveState.bind(this)();
   }
 
   moveSnake = () => {
@@ -117,6 +163,7 @@ class App extends Component {
     this.setState({
       snakeDots: dots
     })
+    this.saveState.bind(this)();
   }
 
   checkIfOutBorders() {
@@ -147,6 +194,7 @@ class App extends Component {
       this.enlargeSnake();
       this.increaseSpeed();
       soundEat.play();
+      this.saveState.bind(this)();
     }
   }
 
@@ -156,6 +204,7 @@ class App extends Component {
     this.setState( {
       snakeDots: newSnake
     })
+    this.saveState.bind(this)();
   }
 
   increaseSpeed() {
@@ -165,20 +214,30 @@ class App extends Component {
           speed: this.state.speed - 5
       })
       this.interval = setInterval(this.moveSnake, this.state.speed);
+      this.saveState.bind(this)();
     }
+   
   }
 
   onGameOver() {
+    let newScore = JSON.parse(localStorage.getItem('lastTen'));
+    if(newScore.length > 9) {
+      newScore.shift();
+    }
+    newScore.push(this.state.snakeDots.length - this.state.beginLength);
+    localStorage.setItem('lastTen', JSON.stringify(newScore));
     this.setState(initialState);
     clearInterval(this.interval);
     if(!this.state.modalShow) {
       this.setState({
         prevLengthTail: this.state.snakeDots.length,
         modalShow: true,
+        lastTen: newScore,
       });
     }
     this.setNeedSpeed();
     this.setNeedLength();
+    this.saveState.bind(this)();
   }
 
   setNeedSpeed() {
@@ -195,6 +254,7 @@ class App extends Component {
         speed: 200,
       })
     }
+    this.saveState.bind(this)();
   }
 
   setNeedLength() {
@@ -223,6 +283,7 @@ class App extends Component {
         ],
       })
     }
+    this.saveState.bind(this)();
   }
 
   startNewGame() {
@@ -231,6 +292,7 @@ class App extends Component {
     this.setState(initialState);
     this.setNeedLength();
     this.interval = setInterval(this.moveSnake, this.state.speed);
+    this.saveState.bind(this)();
   }
 
   fullScreenGame() {
@@ -249,6 +311,16 @@ class App extends Component {
         modalShow: false,
       });
     }
+    this.saveState.bind(this)();
+  }
+  closeLastTen() {
+    soundClick.play();
+    if(this.state.scoreShow) {
+      this.setState({
+        scoreShow: false,
+      });
+    }
+    this.saveState.bind(this);
   }
 
   changeMusicVolume(e) {
@@ -299,6 +371,7 @@ class App extends Component {
         speedName: 'Low speed',
       })
     }
+    this.saveState.bind(this)();
   }
 
   changeLength(e) {
@@ -330,6 +403,7 @@ class App extends Component {
         beginLength: 4
       })
     }
+    this.saveState.bind(this)();
   }
 
   changeFood(e) {
@@ -346,6 +420,7 @@ class App extends Component {
         nameFood: 'strawberry',
       })
     } 
+    this.saveState.bind(this)();
   }
 
 
@@ -355,9 +430,15 @@ class App extends Component {
       <div className="snake-game">
         <Header />
         <FinishModal
-            tail = {this.state.prevLengthTail}
-            show = {this.state.modalShow}
-            onHide= {this.closeModal.bind(this)}
+          score = {this.state.prevLengthTail - this.state.beginLength}
+          tail = {this.state.prevLengthTail}
+          show = {this.state.modalShow}
+          onHide= {this.closeModal.bind(this)}
+        />
+        <LastTenScore
+          tenScore = {this.state.lastTen}
+          show = {this.state.scoreShow}
+          onHide= {this.closeLastTen.bind(this)}
         />
         <div className="game-block">
           <div className = "panel-control">
@@ -375,7 +456,8 @@ class App extends Component {
             }}
             currentSpeed = {this.state.speedName}
             currentFood = {`Meal: ${this.state.nameFood}`}
-            currentLength = {`Length: ${this.state.beginLength}`}  />
+            currentLength = {`Length: ${this.state.beginLength}`}
+            />
             <SoundController 
               onChangeSoundVolume = {(e) => {
               this.changeSoundVolume(e);
@@ -390,6 +472,15 @@ class App extends Component {
                 this.muteMusic(e);
             }}
             />
+          </div>
+          <div>
+            <StateGame currentLength = {this.state.snakeDots.length - this.state.beginLength}
+            tail= {this.state.snakeDots.length}
+            statistics = {() => {
+              this.setState({
+                scoreShow: true,
+              })
+            }}/>
           </div>
           <div className="game-area">
               <Snake snakeDots = {this.state.snakeDots} />

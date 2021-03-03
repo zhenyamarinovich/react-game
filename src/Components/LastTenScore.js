@@ -1,7 +1,13 @@
 import React from 'react';
 import {Modal, Button} from 'react-bootstrap';
 
-export default function FinishModal(props) {
+export default function LastTenScore(props) {
+    const numbers = props.tenScore;
+    const listItems = numbers.map((number,index) =>
+      <li key={index}>
+          Score: {number}
+      </li> 
+    );
     return (
       <Modal
         {...props}
@@ -11,14 +17,11 @@ export default function FinishModal(props) {
       >
         <Modal.Header closeButton>
           <Modal.Title id="contained-modal-title-vcenter">
-            Game Over
+            Last Ten Score
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p>
-            Your score is {props.score}!
-            Tail length is {props.tail} Train again.
-          </p>
+         <ol>{listItems}</ol>
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={props.onHide}>Close</Button>
