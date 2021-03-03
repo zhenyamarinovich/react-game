@@ -11,6 +11,7 @@ import eatSound from './assets/audio/eat.wav';
 import backMusic from './assets/audio/back-music.mp3';
 import {Howl} from 'howler';
 import SoundController from './Components/SoundController';
+import Settings from './Components/Settings';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const getRandomCoordinates = () => {
@@ -24,7 +25,6 @@ const getRandomCoordinates = () => {
 const initialState = {
   food: getRandomCoordinates(),
   direction: 'RIGHT',
-  speed: 150,
   snakeDots: [
     [0,0],
     [4,0],
@@ -52,7 +52,9 @@ class App extends Component {
     //this.interval = setInterval(this.moveSnake, this.state.speed);
     document.onkeydown = this.onKeyDown;  
     this.setState({
-      prevLengthTail: 0
+      prevLengthTail: 0,
+      speedName: 'Low speed',
+      speed: 200,
     })
     soundClick.volume(0.5);
     soundEat.volume(0.5);
@@ -158,7 +160,7 @@ class App extends Component {
     if(this.state.speed > 50) {
       clearInterval(this.interval);
         this.setState( {
-          speed: this.state.speed - 3
+          speed: this.state.speed - 5
       })
       this.interval = setInterval(this.moveSnake, this.state.speed);
     }
@@ -172,6 +174,23 @@ class App extends Component {
         prevLengthTail: this.state.snakeDots.length,
         modalShow: true,
       });
+    }
+    this.setNeedSpeed();
+  }
+
+  setNeedSpeed() {
+    if(this.state.speedName === 'Middle speed') {
+      this.setState({
+        speed: 150,
+      })
+    } else if(this.state.speedName === 'High speed') {
+      this.setState({
+        speed: 100,
+      })
+    } else if(this.state.speedName === 'Low speed'){
+      this.setState({
+        speed: 200,
+      })
     }
   }
 
@@ -231,6 +250,25 @@ class App extends Component {
     e.currentTarget.childNodes[2].classList.toggle('image-none');
   }
 
+  changeSpeed(e) {
+    if(e.target.innerText === 'Middle') {
+      this.setState({
+        speed: 150,
+        speedName: 'Middle speed',
+      })
+    } else if(e.target.innerText === 'High') {
+      this.setState({
+        speed: 100,
+        speedName: 'High speed',
+      })
+    } else if(e.target.innerText === 'Low'){
+      this.setState({
+        speed: 200,
+        speedName: 'Low speed',
+      })
+    }
+  }
+
 
 
   render() {
@@ -260,6 +298,9 @@ class App extends Component {
                 this.muteMusic(e);
             }}
               />
+            <Settings onChangeSpeed = {(e) => {
+              this.changeSpeed(e);
+            }} currentSpeed = {this.state.speedName}/>
           </div>
           <div className="game-area">
               <Snake snakeDots = {this.state.snakeDots} />
