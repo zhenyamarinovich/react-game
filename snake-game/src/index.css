@@ -19,8 +19,8 @@
 .game-area {
   position: relative;
   margin: 0 auto;
-  width: 600px;
-  height: 600px;
+  width: 500px;
+  height: 500px;
   border: 2px solid black;
 }
 
@@ -90,4 +90,20 @@
 
 button:hover {
   animation: food 1s linear infinite;
+}
+
+.panel-control {
+  width: 500px;
+  display: flex;
+  justify-content:space-between;
+  align-items: center;
+}
+
+.sound-image{
+  width:50px;
+  height: 35px;
+}
+
+.image-none {
+  display: none !important;
 }

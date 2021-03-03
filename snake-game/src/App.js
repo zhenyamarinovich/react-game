@@ -6,6 +6,11 @@ import Footer from './Components/Footer';
 import FullScreen from './Components/FullScreen';
 import StartGame from './Components/StartGame';
 import FinishModal from './Components/FinishModal';
+import clickSound from './assets/audio/click.mp3';
+import eatSound from './assets/audio/eat.wav';
+import backMusic from './assets/audio/back-music.mp3';
+import {Howl} from 'howler';
+import SoundController from './Components/SoundController';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const getRandomCoordinates = () => {
@@ -28,6 +33,17 @@ const initialState = {
   modalShow: false,
 }
 
+const soundClick = new Howl({
+  src: clickSound
+});
+const soundEat = new Howl({
+  src: eatSound
+});
+
+const soundBackground = new Howl({
+  src: backMusic
+})
+
 class App extends Component {
 
   state = initialState;
@@ -38,6 +54,11 @@ class App extends Component {
     this.setState({
       prevLengthTail: 0
     })
+    soundClick.volume(0.5);
+    soundEat.volume(0.5);
+    soundBackground.volume(0.5);
+    soundBackground.loop(true);
+    soundBackground.play();
   }
 
   componentDidUpdate() {
@@ -121,6 +142,7 @@ class App extends Component {
       })
       this.enlargeSnake();
       this.increaseSpeed();
+      soundEat.play();
     }
   }
 
@@ -133,7 +155,7 @@ class App extends Component {
   }
 
   increaseSpeed() {
-    if(this.state.speed > 40) {
+    if(this.state.speed > 50) {
       clearInterval(this.interval);
         this.setState( {
           speed: this.state.speed - 3
@@ -154,12 +176,14 @@ class App extends Component {
   }
 
   startNewGame() {
+    soundClick.play();
     clearInterval(this.interval);
     this.setState(initialState);
     this.interval = setInterval(this.moveSnake, this.state.speed);
   }
 
   fullScreenGame() {
+    soundClick.play();
     if(!document.fullscreenElement) {
       document.documentElement.requestFullscreen();
     } else {
@@ -168,12 +192,46 @@ class App extends Component {
   }
 
   closeModal() {
+    soundClick.play();
     if(this.state.modalShow) {
       this.setState({
         modalShow: false,
       });
     }
   }
+
+  changeMusicVolume(e) {
+    soundBackground.volume(e.target.value);
+  }
+
+  changeSoundVolume(e) {
+    soundClick.volume(e.target.value);
+    soundEat.volume(e.target.value);
+  }
+
+  muteSound(e) {
+    if(soundClick._muted === true) {
+      soundClick.mute(false);
+      soundEat.mute(false);
+    } else {
+      soundClick.mute(true);
+      soundEat.mute(true);
+    }
+    e.currentTarget.childNodes[1].classList.toggle('image-none');
+    e.currentTarget.childNodes[2].classList.toggle('image-none');
+  }
+
+  muteMusic(e) {
+    if(soundBackground._muted === true) {
+      soundBackground.mute(false);
+    } else {
+      soundBackground.mute(true);
+    }
+    e.currentTarget.childNodes[1].classList.toggle('image-none');
+    e.currentTarget.childNodes[2].classList.toggle('image-none');
+  }
+
+
 
   render() {
     return (
@@ -185,9 +243,23 @@ class App extends Component {
             onHide= {this.closeModal.bind(this)}
         />
         <div className="game-block">
-          <div>
+          <div className = "panel-control">
             <StartGame onClickNewGame = {this.startNewGame.bind(this)}/>
             <FullScreen onFullScreen = {this.fullScreenGame}/>
+            <SoundController 
+              onChangeSoundVolume = {(e) => {
+              this.changeSoundVolume(e);
+            }} 
+              onChangeMusicVolume = {(e) => {
+              this.changeMusicVolume(e)
+            }} 
+              onMuteSound = {(e) => {
+                this.muteSound(e);
+            }}
+              onMuteMusic = {(e) => {
+                this.muteMusic(e);
+            }}
+              />
           </div>
           <div className="game-area">
               <Snake snakeDots = {this.state.snakeDots} />
